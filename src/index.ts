@@ -55,4 +55,4 @@ export function generateCustomOperator<T extends Record<string, ParseFunc>>(cust
   return generatedCustomOperators;
 }
 
-export * from "./asyncAggregator";
+export { AsyncAggregator } from "./asyncAggregator";
