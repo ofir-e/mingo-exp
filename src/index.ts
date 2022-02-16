@@ -3,7 +3,6 @@ import _ from "lodash";
 import { Point, Geometry, GeometryCollection } from 'wkx';
 import unkinkPolygon from '@turf/unkink-polygon';
 import dayjs from "dayjs";
-import { AsyncAggregator } from "./asyncAggregator";
 
 type ParseFunc = (...args: any[]) => any;
 
@@ -55,3 +54,5 @@ export function generateCustomOperator<T extends Record<string, ParseFunc>>(cust
   });
   return generatedCustomOperators;
 }
+
+export * from "./asyncAggregator";

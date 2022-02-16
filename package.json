@@ -1,6 +1,6 @@
 {
   "name": "mingo-exp",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "extend mingo with any custom functions with expression",
   "repository": {
     "type": "git",

@@ -59,6 +59,7 @@ This will print:
 ~~~ javascript
 import { useOperators, OperatorType } from "mingo/core";
 import { $project } from "mingo/operators/pipeline";
+import delay from "delay";
 
 import { generateCustomOperator, AsyncAggregator } from 'mingo-exp';
 
