@@ -1,8 +1,7 @@
 import delay from "delay";
 import { useOperators, OperatorType } from "mingo/core";
 import { $project } from "mingo/operators/pipeline";
-import { AsyncAggregator } from '../src/asyncAggregator';
-import { customParseExpression } from '../src/index';
+import { customParseExpression, AsyncAggregator } from '../src/index';
 
 const { $customParse } = customParseExpression({
   testAsync: async (num1: number, num2: number) => {

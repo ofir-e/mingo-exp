@@ -87,19 +87,21 @@ const main = async ()=>{
           n1: '$a.b.c',
           n2: '$a.d',
           n3: '$a.e',
-          a1: { $customParse: { type: "testAsync", args: ['$a.d', '$a.e'] } },
-          a2: { $customParse: { type: "testAsync", args: ['$a.b.c', '$a.d'] } }
+          a1: { $testAsync: ['$a.d', '$a.e'] },
+          a2: { $testAsync: ['$a.b.c', '$a.d'] }
         }
       },
       {
         $project: {
-          a3: { $customParse: { type: "testAsync", args: ['$a1', '$a2'] } },
+          a3: { $testAsync: ['$a1', '$a2'] },
         }
       }
     ]);
 
   console.log(await agg.run(data));
 }
+
+main();
 ~~~
 
 This will print:

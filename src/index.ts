@@ -1,8 +1,11 @@
-import { computeValue } from "mingo/core";
+import { computeValue, Options } from "mingo/core";
 import _ from "lodash";
 import { Point, Geometry, GeometryCollection } from 'wkx';
 import unkinkPolygon from '@turf/unkink-polygon';
 import dayjs from "dayjs";
+import { RawObject } from "mingo/types";
+import { Aggregator } from "mingo";
+import { deasyncObj } from "deasync-obj";
 
 type ParseFunc = (...args: any[]) => any;
 
@@ -55,4 +58,23 @@ export function generateCustomOperator<T extends Record<string, ParseFunc>>(cust
   return generatedCustomOperators;
 }
 
-export { AsyncAggregator } from "./asyncAggregator";
+/**
+ * Provides functionality for the mongoDB aggregation pipeline
+ *
+ * @param pipeline an Array of pipeline operators
+ * @param options An optional Options to pass the aggregator
+ * @constructor
+ */
+ export class AsyncAggregator {
+  constructor(private readonly pipeline: Array<RawObject>, private readonly options?: Options) {}
+  
+  async run(collection: Array<RawObject>): Promise<Array<RawObject>> {
+
+    const aggregators = this.pipeline.map(pipe => new Aggregator([pipe], this.options));
+    for (const agg of aggregators) {
+      collection = agg.run(collection);
+      await deasyncObj(collection);
+    }
+    return collection;
+  }
+}
