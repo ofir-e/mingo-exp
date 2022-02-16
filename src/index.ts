@@ -3,6 +3,7 @@ import _ from "lodash";
 import { Point, Geometry, GeometryCollection } from 'wkx';
 import unkinkPolygon from '@turf/unkink-polygon';
 import dayjs from "dayjs";
+import { AsyncAggregator } from "./asyncAggregator";
 
 type ParseFunc = (...args: any[]) => any;
 
@@ -42,4 +43,15 @@ export function customParseExpression(additionalCustomFunctions: Record<string, 
       return (customFunctions as Record<string, ParseFunc>)[computedValue.type](...(computedValue.args));
     }
   }
+}
+
+export function generateCustomOperator<T extends Record<string, ParseFunc>>(customOperators: T) {
+  const generatedCustomOperators: Record<keyof T, (obj: any, args: any[], options?: any) => any> = _.clone(customOperators);
+  Object.keys(generatedCustomOperators).forEach(key => {
+    generatedCustomOperators[key as keyof T] = (obj: any, args: any[], options?: any) => {
+      const computedArgs = computeValue(obj, args, undefined, options) as any[];
+      return customOperators[key](...(computedArgs));
+    }
+  });
+  return generatedCustomOperators;
 }
