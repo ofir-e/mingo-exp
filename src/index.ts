@@ -1,11 +1,17 @@
-import { computeValue, Options } from "mingo/core";
-import _ from "lodash";
+import { computeValue, Options, useOperators, OperatorType } from 'mingo/core';
+import _ from 'lodash';
 import { Point, Geometry, GeometryCollection } from 'wkx';
 import unkinkPolygon from '@turf/unkink-polygon';
-import dayjs from "dayjs";
-import { RawObject } from "mingo/types";
-import { Aggregator } from "mingo";
-import { deasyncObj } from "deasync-obj";
+import dayjs from 'dayjs';
+import { RawObject } from 'mingo/types';
+import { Aggregator } from 'mingo';
+import { deasyncObj } from 'deasync-obj';
+import { v4 as uuidv4 } from 'uuid';
+import { $addFields, $unset } from 'mingo/operators/pipeline';
+import Cache from 'memory-cache';
+import hash from 'object-hash';
+import AsyncLock from 'async-lock';
+const lock = new AsyncLock();
 
 type ParseFunc = (...args: any[]) => any;
 
@@ -22,7 +28,7 @@ const defaultCustomFunctions = {
   wkt: (wktString: string) => {
     const geometry = Geometry.parse(wktString);
     const { type, coordinates } = geometry.toGeoJSON() as { type: any, coordinates: any[] };
-    if (["Polygon", "MultiPolygon", "Feature", "FeatureCollection"].includes(type)) {
+    if (['Polygon', 'MultiPolygon', 'Feature', 'FeatureCollection'].includes(type)) {
       const { features } = unkinkPolygon({ type, coordinates });
       if (features.length > 1) {
         const geometries = features.map(({ geometry }) => Geometry.parseGeoJSON(geometry));
@@ -58,6 +64,42 @@ export function generateCustomOperator<T extends Record<string, ParseFunc>>(cust
   return generatedCustomOperators;
 }
 
+const MEMORY_CACHE_TIMEOUT = 600000;
+
+export async function $runOnce(obj: any, args: any[], options?: any) {
+  const pipelineId = computeValue({ pipelineId: '$pipelineId' }, '$pipelineId', undefined, options) as string
+  const argsHash = hash(args);
+  const cacheKey = `runOnce_${pipelineId}${argsHash}`;
+
+  return lock.acquire(cacheKey, function () {
+    let existingResponse = Cache.get(cacheKey);
+    if (_.isNil(existingResponse)) {
+      existingResponse = computeValue(obj, args, undefined, options);
+      Cache.put(cacheKey, existingResponse, MEMORY_CACHE_TIMEOUT);
+    }
+    return existingResponse;
+  })
+}
+
+export async function $collect(obj: any, args: any[], options?: any) {
+  const pipelineId = computeValue({ pipelineId: '$pipelineId' }, '$pipelineId', undefined, options) as string
+  const argsHash = hash(args);
+  const cacheKey = `collect_${pipelineId}${argsHash}`;
+
+  return lock.acquire(cacheKey, function () {
+    let existingResponse = Cache.get(cacheKey);
+    if (_.isNil(existingResponse)) {
+      existingResponse = [computeValue(obj, args, undefined, options)];
+      Cache.put(cacheKey, existingResponse, MEMORY_CACHE_TIMEOUT);
+    } else {
+      existingResponse.push(computeValue(obj, args, undefined, options));
+    }
+    return existingResponse;
+  })
+}
+
+
+
 /**
  * Provides functionality for the mongoDB aggregation pipeline
  *
@@ -65,12 +107,24 @@ export function generateCustomOperator<T extends Record<string, ParseFunc>>(cust
  * @param options An optional Options to pass the aggregator
  * @constructor
  */
- export class AsyncAggregator {
-  constructor(private readonly pipeline: Array<RawObject>, private readonly options?: Options) {}
-  
+export class AsyncAggregator {
+  constructor(private readonly pipeline: Array<RawObject>, private readonly options?: Options) {
+    useOperators(OperatorType.PIPELINE, { $addFields, $unset } as any);
+    useOperators(OperatorType.EXPRESSION, { $runOnce } as any);
+  }
+
+  private addPipelineIdPipe() {
+    const pipelineId = uuidv4();
+    return { $addFields: { pipelineId } };
+  }
+
+  private unsetPipelineIdPipe() {
+    return { $unset: 'pipelineId' };
+  }
+
   async run(collection: Array<RawObject>): Promise<Array<RawObject>> {
 
-    const aggregators = this.pipeline.map(pipe => new Aggregator([pipe], this.options));
+    const aggregators = this.pipeline.map(pipe => new Aggregator([this.addPipelineIdPipe(), pipe, this.unsetPipelineIdPipe()], this.options));
     for (const agg of aggregators) {
       collection = agg.run(collection);
       await deasyncObj(collection);

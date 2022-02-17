@@ -1,6 +1,6 @@
-import { Aggregator } from "mingo/aggregator";
-import { useOperators, OperatorType } from "mingo/core";
-import { $project } from "mingo/operators/pipeline";
+import { Aggregator } from 'mingo/aggregator';
+import { useOperators, OperatorType } from 'mingo/core';
+import { $project } from 'mingo/operators/pipeline';
 
 import { customParseExpression, generateCustomOperator } from '../src/index';
 
@@ -15,7 +15,7 @@ const inputData = [
   { a: { b: { c: 6 }, d: 6, e: 6 } }
 ]
 
-test("custom function called", function () {
+test('custom function called', function () {
   const agg = new Aggregator([
     {
       $project: {
@@ -32,14 +32,14 @@ test("custom function called", function () {
   ]);
 })
 
-test("default custom function called", function () {
+test('default custom function called', function () {
   const agg = new Aggregator([
     {
       $project: {
         n1: '$a.b.c',
         n2: '$a.d',
         n3: '$a.e',
-        q: { $customParse: { type: "concat", args: ['*', '$a.b.c', '$a.d', '$a.e'] } },
+        q: { $customParse: { type: 'concat', args: ['*', '$a.b.c', '$a.d', '$a.e'] } },
       }
     }
   ]);
@@ -49,14 +49,14 @@ test("default custom function called", function () {
   ]);
 })
 
-test("both default and custom function called", function () {
+test('both default and custom function called', function () {
   const agg = new Aggregator([
     {
       $project: {
         n1: '$a.b.c',
         n2: '$a.d',
         n3: '$a.e',
-        q: { $customParse: { type: "concat", args: ['*', '$a.b.c', '$a.d', '$a.e'] } },
+        q: { $customParse: { type: 'concat', args: ['*', '$a.b.c', '$a.d', '$a.e'] } },
         a: { $multiply3Numbers: ['$a.b.c', '$a.d', '$a.e'] }
       }
     }
