@@ -7,6 +7,9 @@
 ![license](https://img.shields.io/github/license/ofir-e/mingo-exp)
 [![version](https://img.shields.io/npm/v/mingo-exp)](https://www.npmjs.org/package/mingo-exp)
 [![npm downloads](https://img.shields.io/npm/dm/mingo-exp)](https://www.npmjs.org/package/mingo-exp)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ofir-e/mingo-exp/Node.js%20CI)
+[![HitCount](https://hits.dwyl.com/ofir-e/mingo-exp.svg)](https://hits.dwyl.com/ofir-e/mingo-exp.svg)
+[![codecov](https://img.shields.io/codecov/c/github/ofir-e/mingo-exp)](https://codecov.io/gh/ofir-e/mingo-exp)
 
 ## Installation
 
