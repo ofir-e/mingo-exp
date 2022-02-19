@@ -1,6 +1,6 @@
 {
   "name": "mingo-exp",
-  "version": "1.0.66666",
+  "version": "1.0.666666",
   "description": "extend mingo with any custom function and support async code in aggregations",
   "repository": {
     "type": "git",
