@@ -28,7 +28,7 @@ const inputData = [
   },
   {
     a: {
-      d: 'Feb 19 2022 13:26:28',
+      d: 'Feb 19 2022 13:26:28 GMT+0200',
       n: 5,
       t: ' b   ',
       b: false,
