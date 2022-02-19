@@ -1,8 +1,12 @@
 # mingo-exp
 
-    extend mingo with any custom functions with expression.
-    want to transform objects to objects?
-    get the full power of mongo aggregation framework using mingo + the power of your own js\ts code 💪
+  extend mingo with any custom function and support async code in aggregations.
+  want to transform objects to objects?
+  get the full power of mongo aggregation framework using mingo + the power of your own js\ts code 💪
+
+![license](https://img.shields.io/github/license/ofir-e/mingo-exp)
+[![version](https://img.shields.io/npm/v/mingo-exp)](https://www.npmjs.org/package/mingo-exp)
+[![npm downloads](https://img.shields.io/npm/dm/mingo-exp)](https://www.npmjs.org/package/mingo-exp)
 
 ## Installation
 
@@ -124,8 +128,8 @@ import _ from 'lodash';
 import { AsyncAggregator, $runOnce, $collect, generateCustomOperator } from '../src/index';
 
 // simplified custom operator
-const { $sendToServerInBathesForPerformance, $lodashFind } = generateCustomOperator({
-  $sendToServerInBathesForPerformance: async (ids: string[]) => {
+const { $sendToServerInBatchesForPerformance, $lodashFind } = generateCustomOperator({
+  $sendToServerInBatchesForPerformance: async (ids: string[]) => {
     // in real usage this can be a request to a server
     await delay(1000);
     return ids.map(id => ({ id, name: `king number ${id}` }));
@@ -137,7 +141,7 @@ const { $sendToServerInBathesForPerformance, $lodashFind } = generateCustomOpera
 
 // ensure the required operators are preloaded prior to using them.
 useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $runOnce, $collect, $lodashFind, $sendToServerInBathesForPerformance } as any);
+useOperators(OperatorType.EXPRESSION, { $runOnce, $collect, $lodashFind, $sendToServerInBatchesForPerformance } as any);
 
 const main = async () => {
   const data = [
@@ -155,7 +159,7 @@ const main = async () => {
     {
       $project: {
         id: '$id',
-        response: { $runOnce: { $sendToServerInBathesForPerformance: ['$idsForBatch'] } }
+        response: { $runOnce: { $sendToServerInBatchesForPerformance: ['$idsForBatch'] } }
       }
     },
     {

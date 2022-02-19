@@ -7,8 +7,8 @@ import _ from 'lodash';
 import { $runOnce, generateCustomOperator } from '../src/index';
 
 // simplified custom operator
-const { $sendToServerInBathesForPerformance, $lodashFind } = generateCustomOperator({
-  $sendToServerInBathesForPerformance: async (ids: string[]) => {
+const { $sendToServerInBatchesForPerformance, $lodashFind } = generateCustomOperator({
+  $sendToServerInBatchesForPerformance: async (ids: string[]) => {
     // in real usage this can be a request to a server
     await delay(30);
     return ids.map(id => ({ id, name: `king number ${id}` }));
@@ -20,7 +20,7 @@ const { $sendToServerInBathesForPerformance, $lodashFind } = generateCustomOpera
 
 // ensure the required operators are preloaded prior to using them.
 useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $runOnce, $collect, $lodashFind, $sendToServerInBathesForPerformance } as any);
+useOperators(OperatorType.EXPRESSION, { $runOnce, $collect, $lodashFind, $sendToServerInBatchesForPerformance } as any);
 
 const inputData = [
   { a: { b: '123' } },
@@ -38,7 +38,7 @@ test('collect can be called for multiple fields ', async function () {
     {
       $project: {
         id: '$id',
-        response: { $runOnce: { $sendToServerInBathesForPerformance: ['$idsForBatch'] } }
+        response: { $runOnce: { $sendToServerInBatchesForPerformance: ['$idsForBatch'] } }
       }
     },
     {
