@@ -1,10 +1,9 @@
-import { useOperators, OperatorType } from 'mingo/core';
+import { useOperators, OperatorType, PipelineOperator } from 'mingo/core';
 import { $project } from 'mingo/operators/pipeline';
-import { AsyncAggregator, $collect } from '../src/index';
+import { AsyncAggregator, generateCustomOperator } from '../src/index';
 import Cache from 'memory-cache';
 import delay from 'delay';
 import _ from 'lodash';
-import { $runOnce, generateCustomOperator } from '../src/index';
 
 // simplified custom operator
 const { $sendToServerInBatchesForPerformance, $lodashFind } = generateCustomOperator({
@@ -19,8 +18,8 @@ const { $sendToServerInBatchesForPerformance, $lodashFind } = generateCustomOper
 });
 
 // ensure the required operators are preloaded prior to using them.
-useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $runOnce, $collect, $lodashFind, $sendToServerInBatchesForPerformance } as any);
+useOperators(OperatorType.PIPELINE, { $project } as Record<string, PipelineOperator>);
+useOperators(OperatorType.EXPRESSION, { $lodashFind, $sendToServerInBatchesForPerformance });
 
 const inputData = [
   { a: { b: '123' } },

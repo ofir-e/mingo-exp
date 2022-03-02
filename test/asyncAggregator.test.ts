@@ -1,5 +1,5 @@
 import delay from 'delay';
-import { useOperators, OperatorType } from 'mingo/core';
+import { useOperators, OperatorType, PipelineOperator } from 'mingo/core';
 import { $project } from 'mingo/operators/pipeline';
 import { customParseExpression, AsyncAggregator } from '../src/index';
 import { v4 as uuidv4, validate } from 'uuid';
@@ -17,8 +17,8 @@ const { $customParse } = customParseExpression({
 });
 
 // ensure the required operators are preloaded prior to using them.
-useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $customParse } as any);
+useOperators(OperatorType.PIPELINE, { $project } as Record<string, PipelineOperator>);
+useOperators(OperatorType.EXPRESSION, { $customParse });
 
 const inputData = [
   { a: { b: { c: 3 }, d: 4, e: 5 } },

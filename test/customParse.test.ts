@@ -1,5 +1,5 @@
 import { Aggregator } from 'mingo/aggregator';
-import { useOperators, OperatorType } from 'mingo/core';
+import { useOperators, OperatorType, PipelineOperator } from 'mingo/core';
 import { $project } from 'mingo/operators/pipeline';
 
 import { customParseExpression } from '../src/index';
@@ -7,8 +7,8 @@ import { customParseExpression } from '../src/index';
 const { $customParse } = customParseExpression({ multiply3Numbers: (num1: number, num2: number, num3: number) => num1 * num2 * num3 });
 
 // ensure the required operators are preloaded prior to using them.
-useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $customParse } as any);
+useOperators(OperatorType.PIPELINE, { $project } as Record<string, PipelineOperator>);
+useOperators(OperatorType.EXPRESSION, { $customParse });
 
 const inputData = [
   { a: { b: { c: 3 }, d: 4, e: 5 } },

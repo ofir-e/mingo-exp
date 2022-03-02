@@ -21,7 +21,7 @@
 
 ~~~ javascript
 import { Aggregator } from 'mingo/aggregator';
-import { useOperators, OperatorType } from 'mingo/core';
+import { useOperators, OperatorType, PipelineOperator } from 'mingo/core';
 import { $project } from 'mingo/operators/pipeline';
 
 import { customParseExpression } from 'mingo-exp';
@@ -29,8 +29,8 @@ import { customParseExpression } from 'mingo-exp';
 const { $customParse } = customParseExpression({ multiply3Numbers: (num1: number, num2: number, num3: number) => num1 * num2 * num3 });
 
 // ensure the required operators are preloaded prior to using them.
-useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $customParse } as any);
+useOperators(OperatorType.PIPELINE, { $project } as Record<string, PipelineOperator>);
+useOperators(OperatorType.EXPRESSION, { $customParse });
 
 const data = [
   { a: { b: { c: 3 }, d: 4, e: 5 } },
@@ -64,7 +64,7 @@ This will print:
 ## async Example
 
 ~~~ javascript
-import { useOperators, OperatorType } from 'mingo/core';
+import { useOperators, OperatorType, PipelineOperator } from 'mingo/core';
 import { $project } from 'mingo/operators/pipeline';
 import delay from 'delay';
 
@@ -79,8 +79,8 @@ const { $testAsync } = generateCustomOperator({
 });
 
 // ensure the required operators are preloaded prior to using them.
-useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $testAsync } as any);
+useOperators(OperatorType.PIPELINE, { $project } as Record<string, PipelineOperator>);
+useOperators(OperatorType.EXPRESSION, { $testAsync });
 
 const main = async ()=>{
   const data = [
@@ -124,11 +124,11 @@ This will print:
 note that ```$collect``` and ```$runOnce``` are ```EXPRESSION``` operators of this package and are compatible with ```AsyncAggregator```, ```$runOnce``` makes promises execute only once (based on current pipe args of the promise) and the response is available for every document, ```$collect``` is similar to ```$push``` but with no need of grouping
 
 ~~~ javascript
-import { useOperators, OperatorType } from 'mingo/core';
+import { useOperators, OperatorType, PipelineOperator } from 'mingo/core';
 import { $project } from 'mingo/operators/pipeline';
 import delay from 'delay';
 import _ from 'lodash';
-import { AsyncAggregator, $runOnce, $collect, generateCustomOperator } from '../src/index';
+import { AsyncAggregator, generateCustomOperator } from '../src/index';
 
 // simplified custom operator
 const { $sendToServerInBatchesForPerformance, $lodashFind } = generateCustomOperator({
@@ -143,8 +143,8 @@ const { $sendToServerInBatchesForPerformance, $lodashFind } = generateCustomOper
 });
 
 // ensure the required operators are preloaded prior to using them.
-useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $runOnce, $collect, $lodashFind, $sendToServerInBatchesForPerformance } as any);
+useOperators(OperatorType.PIPELINE, { $project } as Record<string, PipelineOperator>);
+useOperators(OperatorType.EXPRESSION, { $lodashFind, $sendToServerInBatchesForPerformance });
 
 const main = async () => {
   const data = [

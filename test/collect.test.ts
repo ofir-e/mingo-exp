@@ -1,12 +1,11 @@
-import { useOperators, OperatorType } from 'mingo/core';
+import { useOperators, OperatorType, PipelineOperator } from 'mingo/core';
 import { $project } from 'mingo/operators/pipeline';
-import { AsyncAggregator, $collect } from '../src/index';
+import { AsyncAggregator } from '../src/index';
 import Cache from 'memory-cache';
 
 
 // ensure the required operators are preloaded prior to using them.
-useOperators(OperatorType.PIPELINE, { $project } as any);
-useOperators(OperatorType.EXPRESSION, { $collect } as any);
+useOperators(OperatorType.PIPELINE, { $project } as Record<string, PipelineOperator>);
 
 const inputData = [
   { a: { b: 1, c: 6 } },
